@@ -1,3 +1,4 @@
+# IUS spec file for php70u-pecl-smbclient, forked from
 # Fedora spec file for php-smbclient
 # with SCL compatibility removed, from
 #
@@ -15,10 +16,11 @@
 %global ini_name   40-%{pecl_name}.ini
 # Test suite requires a Samba server and configuration file
 %global with_tests 0%{?_with_tests:1}
+%global php_base php70u
 
-Name:           php-smbclient
+Name:           %{php_base}-pecl-smbclient
 Version:        0.8.0
-Release:        1%{?dist}
+Release:        1.ius%{?dist}
 Summary:        PHP wrapper for libsmbclient
 
 Group:          Development/Languages
@@ -29,8 +31,8 @@ Source0:        http://pecl.php.net/get/%{pecl_name}-%{version}%{?prever}.tgz
 Source2:        %{pecl_name}-phpunit.xml
 %endif
 
-BuildRequires:  php-devel
-BuildRequires:  php-pear
+BuildRequires:  %{php_base}-devel
+BuildRequires:  %{php_base}-pear
 BuildRequires:  libsmbclient-devel > 3.6
 %if %{with_tests}
 BuildRequires:  php-composer(phpunit/phpunit)
@@ -41,7 +43,8 @@ Requires:       php(zend-abi) = %{php_zend_api}
 Requires:       php(api) = %{php_core_api}
 
 # Renamed (and "php -m" reports both smbclient and libsmbclient)
-Obsoletes:      php-libsmbclient         < 0.8.0-0.2
+Conflicts:      php-libsmbclient         < %{version}
+Conflicts:      php-smbclient            < %{version}
 Provides:       php-libsmbclient         = %{version}-%{release}
 Provides:       php-libsmbclient%{?_isa} = %{version}-%{release}
 # PECL
@@ -50,6 +53,22 @@ Provides:       php-pecl-%{pecl_name}%{?_isa}  = %{version}-%{release}
 Provides:       php-pecl(%{pecl_name})         = %{version}
 Provides:       php-pecl(%{pecl_name})%{?_isa} = %{version}
 
+#IUS
+Provides:       %{php_base}-libsmbclient         = %{version}-%{release}
+Provides:       %{php_base}-libsmbclient%{?_isa} = %{version}-%{release}
+Provides:       %{php_base}-pecl(%{pecl_name})         = %{version}
+Provides:       %{php_base}-pecl(%{pecl_name})%{?_isa} = %{version}
+Provides:       php-smbclient = %{version}-%{release}
+Provides:       php-smbclient(x86-64) = %{version}-%{release}
+Provides:       config(php-smbclient) = %{version}-%{release}
+Provides:       %{php_base}-smbclient         = %{version}-%{release}
+Provides:       %{php_base}-smbclient%{?_isa} = %{version}-%{release}
+
+# RPM 4.8
+%{?filter_provides_in: %filter_provides_in %{php_extdir}/.*\.so$}
+%{?filter_setup}
+# RPM 4.9+
+%global __provides_exclude_from %{?__provides_exclude_from:%__provides_exclude_from|}%{php_extdir}/.*\\.so$
 
 %description
 %{pecl_name} is a PHP extension that uses Samba's libsmbclient
@@ -143,8 +162,21 @@ cp %{SOURCE2} phpunit.xml
     %{_bindir}/phpunit --verbose
 %endif
 
+%if 0%{?pecl_install:1}
+%post
+%{pecl_install} %{pecl_xmldir}/%{pecl_name}.xml >/dev/null || :
+%endif
+
+
+%if 0%{?pecl_uninstall:1}
+%postun
+if [ $1 -eq 0 ]; then
+    %{pecl_uninstall} %{pecl_name} >/dev/null || :
+fi
+%endif
 
 %files
+%{!?_licensedir:%global license %%doc}
 %license NTS/LICENSE
 %doc %{pecl_docdir}/%{pecl_name}
 %{pecl_xmldir}/%{name}.xml
@@ -159,6 +191,12 @@ cp %{SOURCE2} phpunit.xml
 
 
 %changelog
+* Mon Jun 13 2016 Ben Harper <ben.harper@rackspace.com> - 0.8.0-1.ius
+- Port from Fedora to IUS
+- add pecl scriptlets
+- fix for license
+- add .so filters
+
 * Wed Mar  2 2016 Remi Collet <remi@fedoraproject.org> - 0.8.0-1
 - update to 0.8.0 (stable, no change)
 - drop scriptlets (replaced by file triggers in php-pear)
