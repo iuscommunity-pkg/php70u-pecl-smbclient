@@ -66,9 +66,8 @@ Provides:       %{php_base}-smbclient%{?_isa} = %{version}-%{release}
 
 # RPM 4.8
 %{?filter_provides_in: %filter_provides_in %{php_extdir}/.*\.so$}
+%{?filter_provides_in: %filter_provides_in %{php_ztsextdir}/.*\.so$}
 %{?filter_setup}
-# RPM 4.9+
-%global __provides_exclude_from %{?__provides_exclude_from:%__provides_exclude_from|}%{php_extdir}/.*\\.so$
 
 %description
 %{pecl_name} is a PHP extension that uses Samba's libsmbclient
