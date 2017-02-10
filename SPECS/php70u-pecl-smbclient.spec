@@ -19,7 +19,7 @@
 %global php_base php70u
 
 Name:           %{php_base}-pecl-smbclient
-Version:        0.8.0
+Version:        0.9.0
 Release:        1.ius%{?dist}
 Summary:        PHP wrapper for libsmbclient
 
@@ -190,6 +190,9 @@ fi
 
 
 %changelog
+* Fri Feb 10 2017 Ben Harper <ben.harper@rackspace.com> - 0.9.0-1.ius
+- Latest upstream
+
 * Mon Jun 13 2016 Ben Harper <ben.harper@rackspace.com> - 0.8.0-1.ius
 - Port from Fedora to IUS
 - add pecl scriptlets
